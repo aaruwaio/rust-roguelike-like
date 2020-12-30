@@ -1,0 +1,15 @@
+[package]
+name = "rust-roguelike-like"
+version = "0.1.0"
+authors = ["Ryo Ogawa <ryo.ogawa29@icloud.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rand = "0.8.0"
+
+[dependencies.sdl2]
+version = "0.34.3"
+default-features = false
+features = ["image"]
