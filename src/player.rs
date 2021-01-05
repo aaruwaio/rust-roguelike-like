@@ -47,11 +47,17 @@ impl<'a> Player {
         }
     }
 
-    pub fn take_item(&mut self, field: &mut Field) {
+    pub fn take_item(&mut self, field: &mut Field) -> Option<String> {
         if let Some(item) = self.get_grid(field).get_item() {
             self.get_grid(field).set_item(None);
             self.items.push(item);
             println!("{:?}", self.items);
+            match item {
+                Item::Apple => return Some(String::from("りんご")),
+                Item::Orange => return Some(String::from("みかん")),
+                Item::Lemon => return Some(String::from("れもん")),
+            }
         }
+        None
     }
 }
