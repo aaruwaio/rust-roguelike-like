@@ -137,7 +137,7 @@ fn main() -> Result<(), String> {
 
     //メッセージの生成
     let mut msg = Message::new();
-    msg.push(String::from("ゲームスタート!"));
+    msg.push(String::from("ゲームスタート!"))?;
 
     'running: loop {
         //背景の描画
@@ -197,25 +197,25 @@ fn main() -> Result<(), String> {
                     Keycode::W | Keycode::Up => {
                         player.set_pos(Dir::Up);
                         if let Some(item_name) = player.take_item(&mut field) {
-                            msg.push(format!("{}を手に入れた。", item_name));
+                            msg.push(format!("{}を手に入れた。", item_name))?;
                         }
                     }
                     Keycode::S | Keycode::Down => {
                         player.set_pos(Dir::Down);
                         if let Some(item_name) = player.take_item(&mut field) {
-                            msg.push(format!("{}を手に入れた。", item_name));
+                            msg.push(format!("{}を手に入れた。", item_name))?;
                         }
                     }
                     Keycode::A | Keycode::Left => {
                         player.set_pos(Dir::Left);
                         if let Some(item_name) = player.take_item(&mut field) {
-                            msg.push(format!("{}を手に入れた。", item_name));
+                            msg.push(format!("{}を手に入れた。", item_name))?;
                         }
                     }
                     Keycode::D | Keycode::Right => {
                         player.set_pos(Dir::Right);
                         if let Some(item_name) = player.take_item(&mut field) {
-                            msg.push(format!("{}を手に入れた。", item_name));
+                            msg.push(format!("{}を手に入れた。", item_name))?;
                         }
                     }
                     _ => {}
