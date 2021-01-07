@@ -23,6 +23,11 @@ const FIELD_SIZE_X: usize = 12;
 const FIELD_SIZE_Y: usize = 5;
 const ITEM_QUANTITY: u32 = 5;
 const ITEM_TYPE: u32 = 3;
+const MESSAGE_WIDTH_PER_CHAR: u32 = 10;
+const MESSAGE_HEIGHT: u32 = 40;
+const MESSAGE_OFFSET_X: i32 = 10;
+const MESSAGE_OFFSET_Y: i32 = 560;
+const MESSAGE_SPACE: i32 = 5;
 
 fn main() -> Result<(), String> {
     let sdl_ctx = sdl2::init()?;
@@ -76,16 +81,38 @@ fn main() -> Result<(), String> {
         .create_texture_from_surface(&lemon_surface)
         .map_err(|e| e.to_string())?;
 
+    let font_path = Path::new("assets/font/PixelMplus12-Regular.ttf");
+    let font = ttf_ctx.load_font(font_path, 100)?;
+
     let mut rng = rand::thread_rng();
 
+    //フィールドの生成
+    let mut field = Field::new();
+    let mut field_dests = [[Rect::new(0, 0, 0, 0); FIELD_SIZE_X]; FIELD_SIZE_Y];
+    for i in 0..FIELD_SIZE_Y {
+        for j in 0..FIELD_SIZE_X {
+            field_dests[i][j] = Rect::new(
+                field.get_grid(j, i).get_pos().x as i32,
+                field.get_grid(j, i).get_pos().y as i32,
+                GRID_SIZE,
+                GRID_SIZE,
+            );
+        }
+    }
+
+    //プレイヤーの生成
     let player_init_x = rng.gen_range(0..FIELD_SIZE_X);
     let player_init_y = rng.gen_range(0..FIELD_SIZE_Y);
     let mut player = Player::new(player_init_x as u32, player_init_y as u32);
+    let mut player_dest = Rect::new(
+        player.get_grid(&mut field).get_pos().x as i32,
+        player.get_grid(&mut field).get_pos().y as i32,
+        GRID_SIZE,
+        GRID_SIZE,
+    );
 
-    let mut field = Field::new();
-
+    //アイテムの生成
     let mut item_cnt = 0;
-
     while item_cnt < ITEM_QUANTITY {
         let item_x = rng.gen_range(0..FIELD_SIZE_X);
         let item_y = rng.gen_range(0..FIELD_SIZE_Y);
@@ -108,29 +135,7 @@ fn main() -> Result<(), String> {
         }
     }
 
-    let mut player_dest = Rect::new(
-        player.get_grid(&mut field).get_pos().x as i32,
-        player.get_grid(&mut field).get_pos().y as i32,
-        GRID_SIZE,
-        GRID_SIZE,
-    );
-
-    let mut field_dests = [[Rect::new(0, 0, 0, 0); FIELD_SIZE_X]; FIELD_SIZE_Y];
-
-    for i in 0..FIELD_SIZE_Y {
-        for j in 0..FIELD_SIZE_X {
-            field_dests[i][j] = Rect::new(
-                field.get_grid(j, i).get_pos().x as i32,
-                field.get_grid(j, i).get_pos().y as i32,
-                GRID_SIZE,
-                GRID_SIZE,
-            );
-        }
-    }
-
-    let font_path = Path::new("assets/font/PixelMplus12-Regular.ttf");
-    let font = ttf_ctx.load_font(font_path, 100)?;
-
+    //メッセージの生成
     let mut msg = Message::new();
     msg.push(String::from("ゲームスタート!"));
 
@@ -164,16 +169,20 @@ fn main() -> Result<(), String> {
 
         //メッセージの描画
         for (i, message) in msg.messages.iter().enumerate() {
-            let font_surface = font
+            let message_surface = font
                 .render(message)
                 .blended(Color::RGB(255, 255, 255))
                 .map_err(|e| e.to_string())?;
-            let font_tex = texture_creator
-                .create_texture_from_surface(&font_surface)
+            let message_tex = texture_creator
+                .create_texture_from_surface(&message_surface)
                 .map_err(|e| e.to_string())?;
-            //TODO:文字数に合わせてdestを作成する
-            let font_dest = Rect::new(10, 550 + 50 * (i as i32), 400, 40);
-            canvas.copy(&font_tex, None, font_dest)?;
+            let message_dest = Rect::new(
+                MESSAGE_OFFSET_X,
+                MESSAGE_OFFSET_Y + (MESSAGE_HEIGHT as i32 + MESSAGE_SPACE) * (i as i32),
+                MESSAGE_WIDTH_PER_CHAR * (message.len() as u32),
+                MESSAGE_HEIGHT,
+            );
+            canvas.copy(&message_tex, None, message_dest)?;
         }
 
         canvas.present();
